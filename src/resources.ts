@@ -81,4 +81,15 @@ export default [
     },
     preload: true,
   },
+  {
+    name: 'bgSound',
+    type: RESOURCE_TYPE.AUDIO,
+    src: {
+      audio: {
+        type: 'audio',
+        url: 'https://g.alicdn.com/ltao-fe/duck_assets/0.0.1/assets/duckBg.mp3',
+      },
+    },
+    preload: true,
+  },
 ];

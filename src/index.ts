@@ -3,6 +3,7 @@ import createBasketFront from './gameObjects/board/basketFront';
 import createBoard from './gameObjects/board/board';
 import createBall from './gameObjects/ball';
 import createBtn from './gameObjects/btn';
+import createBgSound from './gameObjects/bgSound';
 import resources from './resources';
 
 import { Game, resource } from '@eva/eva.js';
@@ -11,9 +12,10 @@ import { ImgSystem } from '@eva/plugin-renderer-img';
 import { EventSystem } from '@eva/plugin-renderer-event';
 import { SpriteAnimationSystem } from '@eva/plugin-renderer-sprite-animation';
 import { RenderSystem } from '@eva/plugin-renderer-render';
-import { TransitionSystem } from '@eva/plugin-transition';
+import { Transition, TransitionSystem } from '@eva/plugin-transition';
 import { GraphicsSystem } from '@eva/plugin-renderer-graphics';
 import { TextSystem } from '@eva/plugin-renderer-text';
+import { SoundSystem } from "@eva/plugin-sound";
 
 resource.addResource(resources);
 
@@ -32,6 +34,7 @@ const game = new Game({
     new EventSystem(),
     new GraphicsSystem(),
     new TextSystem(),
+    new SoundSystem(),
   ],
 });
 
@@ -43,7 +46,111 @@ const pos = {
   y: 1100,
 };
 
+const bgSound = createBgSound();
+
 const ball = createBall(pos);
+const animation = ball.addComponent(new Transition());
+animation.group = {
+  idle: [
+    {
+      name: 'scale.x',
+      component: ball.transform,
+      values: [
+        {
+          time: 0,
+          value: 1,
+          tween: 'ease-out'
+        },
+        {
+          time: 300,
+          value: 1.2,
+          tween: 'ease-in'
+        },
+        {
+          time: 600,
+          value: 1
+        }
+      ]
+    },
+    {
+      name: 'scale.y',
+      component: ball.transform,
+      values: [
+        {
+          time: 0,
+          value: 1,
+          tween: 'ease-out'
+        },
+        {
+          time: 300,
+          value: 1.2,
+          tween: 'ease-in'
+        },
+        {
+          time: 600,
+          value: 1
+        }
+      ]
+    }
+  ],
+  move: [
+    {
+      name: 'position.x',
+      component: ball.transform,
+      values: [
+        {
+          time: 0,
+          value: 500,
+          tween: 'ease-in'
+        },
+        {
+          time: 300,
+          value: 150,
+          tween:'ease-out' 
+        },
+        {
+          time: 600,
+          value: 170,
+          tween: 'linear'
+        },
+        {
+          time: 700,
+          value: 500,
+          tween: 'linear'
+        },
+      ]
+    },
+    {
+      name: 'position.y',
+      component: ball.transform,
+      values: [
+        {
+          time: 0,
+          value: 1100,
+          tween: 'ease-out'
+        },
+        {
+          time: 300,
+          value: 710,
+          tween:'ease-in'
+        },
+        {
+          time: 600,
+          value: 1100,
+          tween: 'linear'
+        },
+        {
+          time: 700,
+          value: 1100,
+          tween: 'linear'
+        },
+      ]
+    }
+  ]
+}
+
+
+
 const { basetFront, playAnim } = createBasketFront();
 const btn = createBtn({
   text: '投球',
@@ -62,12 +169,19 @@ const btn = createBtn({
     },
   },
   callback: () => {
-    alert('还没做呢～一起来完善吧')
+    animation.play('move', 1)
+    animation.on('finish', name => {
+      name === 'move' && animation.play('idle', 5)
+    })
+
+    
+    
   },
 });
 
 game.scene.addChild(createBackground());
 game.scene.addChild(createBoard());
+game.scene.addChild(bgSound);
 game.scene.addChild(ball);
 game.scene.addChild(basetFront);
 game.scene.addChild(btn);
